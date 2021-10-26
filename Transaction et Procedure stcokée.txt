@@ -1,0 +1,58 @@
+DELIMITER |
+
+CREATE PROCEDURE delete_user(IN p_id INT)
+
+BEGIN
+
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+	END;
+
+	START TRANSACTION;
+
+	SET @p_user_id = p_id;
+	
+	DELETE FROM character_weapon WHERE character_id in (select character_id from `character` where user_id = @p_user_id);
+	DELETE FROM character_armor WHERE character_id in (select character_id from `character` where user_id = @p_user_id);
+	DELETE FROM `character` WHERE user_id = @p_user_id;
+	DELETE FROM `user` WHERE user_id = @p_user_id;
+
+	SELECT * FROM character_weapon AS cw INNER JOIN `character` AS c ON c.character_id = cw.character_id WHERE c.user_id = @p_user_id;
+	SELECT * FROM character_armor AS ca INNER JOIN `character` AS c ON c.character_id = ca.character_id WHERE c.user_id = @p_user_id;
+	SELECT * FROM `character` AS c WHERE c.user_id = @p_user_id;
+	SELECT * FROM `user` AS u WHERE u.user_id = @p_user_id;
+
+	COMMIT;
+
+END|
+
+query('CALL delete_user($id)');
+
+__________________________
+
+CREATE PROCEDURE delete_user
+@p_user_id INT
+AS
+BEGIN
+	DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	BEGIN
+		ROLLBACK;
+	END;
+	
+	SET @p_character_id = '';
+
+START TRANSACTION;
+		SET @p_user_id = 1;	
+		DELETE FROM character_weapon AS cw INNER JOIN `character` AS c ON c.character_id = cw.character_id WHERE c.user_id = @p_user_id;
+		DELETE FROM character_armor AS ca INNER JOIN `character` AS c ON c.character_id = ca.character_id WHERE c.user_id = @p_user_id;
+		DELETE FROM `character` AS c WHERE c.user_id = @p_user_id;
+		DELETE FROM `user` AS u WHERE u.user_id = @p_user_id;
+
+		SELECT * FROM character_weapon AS cw INNER JOIN `character` AS c ON c.character_id = cw.character_id WHERE c.user_id = @p_user_id;
+		SELECT * FROM character_armor AS ca INNER JOIN `character` AS c ON c.character_id = ca.character_id WHERE c.user_id = @p_user_id;
+		SELECT * FROM `character` AS c WHERE c.user_id = @p_user_id;
+		SELECT * FROM `user` AS u WHERE u.user_id = @p_user_id;
+ROLLBACK;
+
+END
